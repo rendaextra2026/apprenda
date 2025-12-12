@@ -65,9 +65,11 @@ const sampleProducts = [
 
 // Affiliate link generator
 function generateAffiliateLink(productUrl: string, affiliateId: string): string {
-  const linkBase = "https://shope.ee/YOUR_LINK_BASE";
-  const encodedUrl = encodeURIComponent(productUrl);
-  return `${linkBase}?af_id=${affiliateId}&redirect=${encodedUrl}`;
+  // Método 1: Usando o formato direto com o ID de afiliado
+  // Este método adiciona o ID de afiliado à URL de forma que a Shopee reconheça
+  const baseUrl = productUrl.split('?')[0]; // Remove query params existentes
+  const separator = baseUrl.includes('?') ? '&' : '?';
+  return `${baseUrl}${separator}af_id=${affiliateId}`;
 }
 
 export default function Home() {
@@ -75,8 +77,8 @@ export default function Home() {
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
   const [wishlisted, setWishlisted] = useState<Set<string>>(new Set());
 
-  const affiliateId = "YOUR_AFFILIATE_ID";
-  // TODO: Replace with your actual affiliate ID from Shopee Afiliados
+  const affiliateId = "18337350889";
+  // Affiliate ID do Shopee Afiliados
 
   const filteredProducts = useMemo(() => {
     return sampleProducts.filter((product) => {
