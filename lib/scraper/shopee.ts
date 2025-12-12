@@ -1,7 +1,12 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+/**
+ * Shopee Scraper e Affiliate Link Generator
+ * Este módulo é responsável por buscar produtos da Shopee
+ * e gerar links de afiliação automaticamente
+ */
 
-interface ScrapedProduct {
+const AFFILIATE_ID = '18337350889';
+
+export interface ScrapedProduct {
   shopeeId: string;
   name: string;
   originalPrice: number;
@@ -13,7 +18,55 @@ interface ScrapedProduct {
   soldCount: number;
 }
 
-// Mapeamento de categorias para URLs da Shopee
+/**
+ * Gera um link de afiliação para um produto da Shopee
+ * @param shopeeUrl - URL do produto na Shopee
+ * @param affiliateId - ID do afiliado (padrão: 18337350889)
+ * @returns URL com parâmetro de afiliação
+ */
+export function generateAffiliateLink(shopeeUrl: string, affiliateId: string = AFFILIATE_ID): string {
+  try {
+    const url = new URL(shopeeUrl);
+    const params = new URLSearchParams(url.search);
+    
+    // Adicionar ID de afiliado
+    params.set('af_id', affiliateId);
+    
+    return `${url.origin}${url.pathname}?${params.toString()}`;
+  } catch {
+    // Se não conseguir parsear, adicionar como parâmetro
+    const separator = shopeeUrl.includes('?') ? '&' : '?';
+    return `${shopeeUrl}${separator}af_id=${affiliateId}`;
+  }
+}
+
+/**
+ * Valida se um URL é válido
+ */
+export function isValidUrl(url: string): boolean {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Extrai o ID do produto de uma URL da Shopee
+ */
+export function extractProductId(url: string): string | null {
+  try {
+    const match = url.match(/\.(\d+)\./);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Mapeamento de categorias para URLs da Shopee
+ */
 const CATEGORY_URLS: Record<string, string> = {
   roupas: 'https://shopee.com.br/search?keyword=roupas&page=0',
   eletronicos: 'https://shopee.com.br/search?keyword=eletrônicos&page=0',
@@ -23,6 +76,10 @@ const CATEGORY_URLS: Record<string, string> = {
   livros: 'https://shopee.com.br/search?keyword=livros&page=0',
 };
 
+/**
+ * Busca produtos da Shopee por categoria
+ * Nota: Implementação completa requer Puppeteer/Playwright ou API oficial
+ */
 export async function scrapeShopeeProducts(category: string): Promise<ScrapedProduct[]> {
   const products: ScrapedProduct[] = [];
 
@@ -50,55 +107,11 @@ export async function scrapeShopeeProducts(category: string): Promise<ScrapedPro
   }
 }
 
-// Função para gerar link de afiliação
-export function generateAffiliateLink(shopeeUrl: string, affiliateId: string): string {
-  try {
-    const url = new URL(shopeeUrl);
-    const params = new URLSearchParams(url.search);
-    
-    // Adicionar ID de afiliado
-    params.set('af_id', affiliateId);
-    
-    return `${url.origin}${url.pathname}?${params.toString()}`;
-  } catch {
-    // Se não conseguir parsear, adicionar como parâmetro
-    const separator = shopeeUrl.includes('?') ? '&' : '?';
-    return `${shopeeUrl}${separator}af_id=${affiliateId}`;
-  }
-}
-
-// Função para extrair dados de um produto (exemplo)
-export function extractProductData(element: cheerio.Element, $: cheerio.CheerioAPI): Partial<ScrapedProduct> | null {
-  try {
-    const name = $(element).find('[data-sqe="name"]').text().trim();
-    const priceText = $(element).find('[data-sqe="price"]').text().trim();
-    const originalPriceText = $(element).find('[data-sqe="original_price"]').text().trim();
-    const imageUrl = $(element).find('img').attr('src') || '';
-    const shopeeUrl = $(element).find('a').attr('href') || '';
-
-    if (!name || !priceText || !shopeeUrl) return null;
-
-    const currentPrice = parseFloat(priceText.replace(/[^\d,]/g, '').replace(',', '.'));
-    const originalPrice = originalPriceText 
-      ? parseFloat(originalPriceText.replace(/[^\d,]/g, '').replace(',', '.'))
-      : currentPrice;
-
-    const discountPercentage = originalPrice > 0 
-      ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
-      : 0;
-
-    return {
-      name,
-      currentPrice,
-      originalPrice,
-      discountPercentage,
-      imageUrl,
-      shopeeUrl: shopeeUrl.startsWith('http') ? shopeeUrl : `https://shopee.com.br${shopeeUrl}`,
-      rating: 0,
-      soldCount: 0,
-    };
-  } catch (error) {
-    console.error('Error extracting product data:', error);
-    return null;
-  }
+/**
+ * Simula uma busca de produtos (será substituído por scraper real)
+ */
+export async function searchProducts(query: string): Promise<ScrapedProduct[]> {
+  // TODO: Implementar busca real via API ou scraper
+  console.log(`Buscando produtos: ${query}`);
+  return [];
 }
