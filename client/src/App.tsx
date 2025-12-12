@@ -18,16 +18,19 @@ function Router() {
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
+// NOTE: Design Theme
+// Luxury Minimalism with Dark & Gold Palette
+// - Dark Charcoal Background (#1A252F)
+// - Gold Accents (#D4AF37)
+// - White Text (#FFFFFF)
+// - Playfair Display for headings, Lato for body
+// - Smooth transitions and elegant hover effects
 
 function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider
-        defaultTheme="light"
+        defaultTheme="dark"
         // switchable
       >
         <TooltipProvider>
